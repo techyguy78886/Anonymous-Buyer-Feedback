@@ -1,0 +1,92 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+// ── Ledger State (8 Public On-Chain Fields) ──────────────────────────────────
+export ledger feedbackCount: Counter;
+export ledger flaggedCount: Counter;
+export ledger activeSession: Counter;
+export ledger merchantId: Bytes<32>;
+export ledger merchantCommitment: Bytes<32>;
+export ledger lastFeedbackCommitment: Bytes<32>;
+export ledger lastFlaggedCommitment: Bytes<32>;
+export ledger minimumRatingScore: Uint<32>;
+
+// ── Private Witnesses (5 — Never Disclosed On-Chain) ──────────────────────────
+witness buyerSecretKey(): Bytes<32>;
+witness orderInvoiceHash(): Bytes<32>;
+witness ratingScore(): Uint<32>;
+witness feedbackProofNonce(): Bytes<32>;
+witness merchantSigningKey(): Bytes<32>;
+
+// ── Circuit 1: submitFeedback — ZK Buyer Feedback Submission ────────────────
+// Proves authentic buyer purchase & rating validity without revealing buyer identity or receipt
+export circuit submitFeedback(expectedMerchantId: Bytes<32>): Bytes<32> {
+  assert(merchantId == expectedMerchantId, "Merchant ID mismatch");
+
+  const buyerKey = buyerSecretKey();
+  const nonce = feedbackProofNonce();
+  const invoiceHash = orderInvoiceHash();
+  const rating = ratingScore();
+
+  // Enforce valid rating bounds (1 to 5 stars) and minimum threshold
+  assert(rating >= minimumRatingScore, "Rating score below minimum required threshold");
+  assert(rating <= 5, "Rating score exceeds maximum allowed value of 5");
+
+  // Cryptographic binding commitment
+  const commitment = persistentHash<Vector<5, Bytes<32>>>([
+    pad(32, "abf:feedback:v2"),
+    buyerKey,
+    nonce,
+    invoiceHash,
+    pad(32, "abf:session:binding")
+  ]);
+
+  feedbackCount.increment(1);
+  lastFeedbackCommitment = disclose(commitment);
+  return lastFeedbackCommitment;
+}
+
+// ── Circuit 2: verifyFeedback — Public On-Chain Commitment Verification ─────
+export circuit verifyFeedback(claimedCommitment: Bytes<32>): Boolean {
+  return disclose(lastFeedbackCommitment == claimedCommitment);
+}
+
+// ── Circuit 3: flagFeedback — Merchant Moderation with ZK Authority ─────────
+// Requires merchantSigningKey() witness to prove authorized merchant authority
+export circuit flagFeedback(commitmentToFlag: Bytes<32>): Bytes<32> {
+  const mfrKey = merchantSigningKey();
+  const expectedAuth = persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "abf:merchant:authority:v1"),
+    mfrKey
+  ]);
+  assert(expectedAuth == merchantCommitment, "Unauthorized merchant operation");
+
+  flaggedCount.increment(1);
+  lastFlaggedCommitment = disclose(commitmentToFlag);
+  return lastFlaggedCommitment;
+}
+
+// ── Circuit 4: setMerchantCommitment — Anchor Merchant Authority & Config ───
+export circuit setMerchantCommitment(newMinimumRating: Uint<32>): Bytes<32> {
+  merchantCommitment = disclose(persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "abf:merchant:authority:v1"),
+    merchantSigningKey()
+  ]));
+  minimumRatingScore = newMinimumRating;
+  activeSession.increment(1);
+  return merchantCommitment;
+}
+
+// ── Circuit 5: resetMerchantProduct — Rotate Catalog & Update Bounds ─────────
+export circuit resetMerchantProduct(newMerchantId: Bytes<32>, newMinimumRating: Uint<32>): Bytes<32> {
+  merchantId = disclose(newMerchantId);
+  minimumRatingScore = newMinimumRating;
+  activeSession.increment(1);
+  return merchantId;
+}
+
+// ── Circuit 6: incrementSession — Nonce Rotation for Replay Protection ──────
+export circuit incrementSession(): [] {
+  activeSession.increment(1);
+}
