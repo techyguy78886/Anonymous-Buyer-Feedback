@@ -2,6 +2,7 @@
 > A privacy-preserving zero-knowledge e-commerce review & rating verification dApp built on the Midnight Network using Compact smart contracts.
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Anonymous--Buyer--Feedback-181717?style=flat-square&logo=github)](https://github.com/techyguy78886/Anonymous-Buyer-Feedback)
+[![YouTube Demo](https://img.shields.io/badge/YouTube-Live_Demo_Video-FF0000?style=flat-square&logo=youtube)](https://youtu.be/1wnKKodJlKo)
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-anonymous--buyer--feedback.vercel.app-000000?style=flat-square&logo=vercel)](https://anonymous-buyer-feedback.vercel.app/)
 [![CI/CD Pipeline](https://github.com/techyguy78886/Anonymous-Buyer-Feedback/actions/workflows/ci.yml/badge.svg)](https://github.com/techyguy78886/Anonymous-Buyer-Feedback/actions/workflows/ci.yml)
 [![Midnight Network](https://img.shields.io/badge/Network-Midnight_Preview-8b5cf6?style=flat-square)](https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5)
@@ -20,11 +21,20 @@
 
 ---
 
+## 🎥 Live Demo Video
+
+[![ABF Video Walkthrough](https://img.shields.io/badge/YouTube-Watch%20Live%20Demo%20Video-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/1wnKKodJlKo)
+
+📺 **Watch on YouTube**: [https://youtu.be/1wnKKodJlKo](https://youtu.be/1wnKKodJlKo)
+
+---
+
 ## 🏗️ Repository & Deployment
 
 - 📄 **Project Proposal**: [PROPOSAL.md](PROPOSAL.md)
 - 📦 **GitHub Repository**: [https://github.com/techyguy78886/Anonymous-Buyer-Feedback](https://github.com/techyguy78886/Anonymous-Buyer-Feedback)
 - 🚀 **Vercel Live Demo**: [https://anonymous-buyer-feedback.vercel.app/](https://anonymous-buyer-feedback.vercel.app/)
+- 🎥 **YouTube Video Walkthrough**: [https://youtu.be/1wnKKodJlKo](https://youtu.be/1wnKKodJlKo)
 - ⚙️ **CI/CD Workflow**: [.github/workflows/ci.yml](.github/workflows/ci.yml)
 - 🌐 **Midnight Explorer**: [https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5](https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5)
 - 📡 **Network**: Midnight Preview Testnet
@@ -39,19 +49,16 @@
 ## 📸 Platform Screenshots & Verification
 
 ### 1. Main Dashboard & ZK Contract Architecture
-![ABF Main Dashboard](photos/dashboard_main.png)
+![ABF Main Dashboard](photos/dashboard.png)
 
 ### 2. Consumer Anonymous Feedback & ZK Proof Portal
-![Consumer Feedback Portal](photos/exam_submit.png)
+![Consumer Feedback Portal](photos/submit.png)
 
-### 3. Merchant Admin Console & Brand Management
-![Merchant Admin Console](photos/admin_side.png)
+### 3. Mobile Responsive UI & Lace Wallet Connector
+![Mobile Responsive UI](photos/mobile_ui.png)
 
-### 4. Mobile Responsive UI & Lace Wallet Connector
-![Mobile Responsive UI](photos/ui_mobile.png)
-
-### 5. On-Chain Execution & Vitest Test Verification Log (10/10)
-![Vitest Test Verification Log](photos/test_run.png)
+### 4. On-Chain Execution & Vitest Test Verification Log (10/10)
+![Vitest Test Verification Log](photos/run_test.png)
 
 ---
 
@@ -201,3 +208,4 @@ export circuit incrementSession(): [] {
 - [x] **Browser Proof Generation**: Client-side ZK proof generation and Midnight Lace wallet connector.
 - [x] **On-Chain Midnight Preview Deployment**: [Midnight Explorer](https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5).
 - [x] **Live Vercel Demo**: [https://anonymous-buyer-feedback.vercel.app/](https://anonymous-buyer-feedback.vercel.app/).
+- [x] **YouTube Live Demo Walkthrough**: [https://youtu.be/1wnKKodJlKo](https://youtu.be/1wnKKodJlKo).

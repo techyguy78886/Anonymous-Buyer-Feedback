@@ -3,6 +3,14 @@
 
 ---
 
+## 🎥 Live Demo Video
+
+[![ABF Video Walkthrough](https://img.shields.io/badge/YouTube-Watch%20Live%20Demo%20Video-FF0000?style=for-the-badge&logo=youtube)](https://youtu.be/1wnKKodJlKo)
+
+📺 **Watch on YouTube**: [https://youtu.be/1wnKKodJlKo](https://youtu.be/1wnKKodJlKo)
+
+---
+
 ## ❓ Question 1: What is the application?
 
 **Anonymous Buyer Feedback (ABF)** is a decentralized, privacy-first consumer review and rating verification platform built on the Midnight Network using Compact zero-knowledge smart contracts. It enables consumers who purchased goods or services to submit cryptographically verified reviews and ratings (1 to 5 stars) **without revealing their real-world identity, customer account, purchase receipt details, credit card numbers, or transaction value** to merchants, review aggregators, or public observers.
@@ -80,6 +88,8 @@ ABF leverages Midnight's dual-state hybrid architecture, combining private off-c
 
 - **Contract Address**: `0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5` ✅ **CONFIRMED**
 - **Midnight Explorer**: [https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5](https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5)
+- **Live Vercel Demo**: [https://anonymous-buyer-feedback.vercel.app/](https://anonymous-buyer-feedback.vercel.app/)
+- **YouTube Demo Video**: [https://youtu.be/1wnKKodJlKo](https://youtu.be/1wnKKodJlKo)
 - **Network**: Midnight Preview Testnet
 - **Preview RPC**: `https://rpc.preview.midnight.network`
 - **Preview Indexer**: `https://indexer.preview.midnight.network/api/v4/graphql`
@@ -94,3 +104,4 @@ ABF leverages Midnight's dual-state hybrid architecture, combining private off-c
 - [x] **100% Passing Test Suite**: 10/10 Vitest unit tests covering circuit execution and witness privacy.
 - [x] **Next.js 14 Web dApp**: Full interactive UI with buyer submission, merchant console, and Midnight Lace wallet connection.
 - [x] **Live On-Chain Deployment**: Deployed on Midnight Preview at `0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5`.
+- [x] **YouTube Live Demo Walkthrough**: [https://youtu.be/1wnKKodJlKo](https://youtu.be/1wnKKodJlKo).
