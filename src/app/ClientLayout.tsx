@@ -4,7 +4,6 @@ import { useState, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import { getClient, type AnonymousBuyerFeedbackClient } from "../lib/contract";
 import type { DAppConnectorAPI, ConnectedAPI, InitialAPI } from "@midnight-ntwrk/dapp-connector-api";
-import type { NetworkConfiguration } from "@midnight-ntwrk/midnight-js-network-provider";
 import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {

@@ -8,11 +8,19 @@ import type {
   Configuration
 } from "@midnight-ntwrk/dapp-connector-api";
 import { setNetworkId, getNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
-import { createNetworkProvider, type NetworkConfiguration } from "@midnight-ntwrk/midnight-js-network-provider";
 import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
 import { Contract, ledger, type Ledger, type Witnesses } from "../../managed/contract/index.js";
 
 export const CONTRACT_ADDRESS = "0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5";
+
+export interface NetworkConfiguration {
+  networkId: string;
+  indexerUrl: string;
+  nodeUrl: string;
+  faucetUrl: string;
+  proofServerUrl: string;
+  explorerUrl: string;
+}
 
 export const NETWORK_CONFIG: NetworkConfiguration = {
   networkId: "preview",
@@ -53,7 +61,7 @@ export class AnonymousBuyerFeedbackClient {
   private isConnected = false;
   private connectedAddress: string | null = null;
   private walletApi: ConnectedAPI | WalletConnectedAPI | any = null;
-  private networkProvider: NetworkConfiguration;
+  private networkConfig: NetworkConfiguration;
   private managedContract: Contract<any>;
 
   private buyerKey: string = "default_buyer_secret_key";
@@ -63,7 +71,7 @@ export class AnonymousBuyerFeedbackClient {
 
   constructor(address: string = CONTRACT_ADDRESS) {
     this.contractAddress = address;
-    this.networkProvider = createNetworkProvider(NETWORK_CONFIG);
+    this.networkConfig = NETWORK_CONFIG;
 
     // Instantiate Compact contract witnesses
     const witnesses: Witnesses<any> = {
@@ -90,8 +98,8 @@ export class AnonymousBuyerFeedbackClient {
   public setRatingScore(score: number) { this.ratingScore = score; }
   public setMerchantKey(k: string) { this.merchantKey = k; }
 
-  public getNetworkProviders(): NetworkConfiguration {
-    return this.networkProvider;
+  public getNetworkConfig(): NetworkConfiguration {
+    return this.networkConfig;
   }
 
   // ── Extension Detection via Midnight DApp Connector API ─────────────────

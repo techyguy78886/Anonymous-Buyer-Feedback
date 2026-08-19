@@ -1,12 +1,7 @@
-﻿import type { Metadata } from "next";
+﻿"use client";
+
 import Link from "next/link";
 import { NETWORK_CONFIG, CONTRACT_ADDRESS } from "@/lib/contract";
-import type { NetworkConfiguration } from "@midnight-ntwrk/midnight-js-network-provider";
-
-export const metadata: Metadata = {
-  title: "Midnight Explorer | Anonymous Buyer Feedback",
-  description: "View live on-chain state of the Anonymous Buyer Feedback ZK contract on Midnight Preview.",
-};
 
 export default function ExplorerPage() {
   return (

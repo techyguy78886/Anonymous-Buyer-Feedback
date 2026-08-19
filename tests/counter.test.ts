@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+﻿import { describe, it, expect } from 'vitest';
 import { Contract, ledger } from '../managed/contract/index.js';
 
 describe('Anonymous Buyer Feedback (ABF) — Compact v2 Smart Contract Suite', () => {
@@ -113,6 +113,6 @@ describe('Anonymous Buyer Feedback (ABF) — Compact v2 Smart Contract Suite', (
     expect(l.merchantCommitment).toBeInstanceOf(Uint8Array);
     expect(l.lastFeedbackCommitment).toBeInstanceOf(Uint8Array);
     expect(l.lastFlaggedCommitment).toBeInstanceOf(Uint8Array);
-    expect(typeof l.minimumRatingScore).toBe('number');
+    expect(typeof l.minimumRatingThreshold).toBe('number');
   });
 });

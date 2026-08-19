@@ -1,4 +1,4 @@
-import * as __compactRuntime from "@midnight-ntwrk/compact-runtime";
+﻿import type * as __compactRuntime from "@midnight-ntwrk/compact-runtime";
 
 export enum StateValue {
   vacant = 0,
@@ -41,7 +41,7 @@ export type Ledger = {
   readonly merchantCommitment: Uint8Array;
   readonly lastFeedbackCommitment: Uint8Array;
   readonly lastFlaggedCommitment: Uint8Array;
-  readonly minimumRatingScore: number;
+  readonly minimumRatingThreshold: number;
 }
 
 export type ContractReferenceLocations = {}

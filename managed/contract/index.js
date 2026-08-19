@@ -1,6 +1,4 @@
-import * as __compactRuntime from '@midnight-ntwrk/compact-runtime';
-
-export class Contract {
+﻿export class Contract {
   witnesses;
   circuits;
 
@@ -64,7 +62,7 @@ export function ledger(state) {
     merchantCommitment: new Uint8Array(32),
     lastFeedbackCommitment: new Uint8Array(32),
     lastFlaggedCommitment: new Uint8Array(32),
-    minimumRatingScore: 1
+    minimumRatingThreshold: 1
   };
 }
 
