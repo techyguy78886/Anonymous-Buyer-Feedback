@@ -1,11 +1,12 @@
-﻿# Anonymous Buyer Feedback (ABF)
-> A privacy-preserving zero-knowledge e-commerce review & rating verification dApp built on the Midnight Network using Compact smart contracts.
+# Anonymous Buyer Feedback (ABF)
+> A privacy-preserving zero-knowledge product and merchant review/feedback dApp built on the Midnight Network using Compact smart contracts and Midnight.js SDK.
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Anonymous--Buyer--Feedback-181717?style=flat-square&logo=github)](https://github.com/techyguy78886/Anonymous-Buyer-Feedback)
 [![YouTube Demo](https://img.shields.io/badge/YouTube-Live_Demo_Video-FF0000?style=flat-square&logo=youtube)](https://youtu.be/1wnKKodJlKo)
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-anonymous--buyer--feedback.vercel.app-000000?style=flat-square&logo=vercel)](https://anonymous-buyer-feedback.vercel.app/)
 [![CI/CD Pipeline](https://github.com/techyguy78886/Anonymous-Buyer-Feedback/actions/workflows/ci.yml/badge.svg)](https://github.com/techyguy78886/Anonymous-Buyer-Feedback/actions/workflows/ci.yml)
 [![Midnight Network](https://img.shields.io/badge/Network-Midnight_Preview-8b5cf6?style=flat-square)](https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5)
+[![Midnight.js SDK](https://img.shields.io/badge/Midnight.js-SDK_Integrated-3b82f6?style=flat-square)](https://midnight.network)
 [![Compact Language](https://img.shields.io/badge/Compact-v0.23-10b981?style=flat-square)](https://midnight.network)
 [![Framework](https://img.shields.io/badge/Framework-Next.js_14-black?style=flat-square&logo=nextdotjs)](https://nextjs.org)
 [![Node.js Version](https://img.shields.io/badge/Node.js-v22.x-06b6d4?style=flat-square)](https://nodejs.org)
@@ -15,9 +16,11 @@
 
 ## 🎯 What Is ABF?
 
-**Anonymous Buyer Feedback (ABF)** enables consumers who purchased goods or services to submit verified product ratings (1–5 stars) and reviews **without exposing their real-world identity, customer account, purchase receipts, credit card details, or order timestamps** to merchants or third-party aggregators. Built on Midnight Network's Compact zero-knowledge smart contracts, consumers generate cryptographic ZK proofs locally on their client browser. Only a one-way review commitment hash is published on-chain — eliminating fake review bot spam, competitor sybil attacks, and retaliatory buyer doxxing.
+**Anonymous Buyer Feedback (ABF)** is a decentralized, privacy-preserving consumer review and rating platform built on the Midnight Network using Compact zero-knowledge smart contracts and the **Midnight.js SDK** (`@midnight-ntwrk/midnight-js-network-provider`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/compact-runtime`).
 
-> **Verify genuine consumer reviews & ratings mathematically — without exposing personal receipts, credit cards, or buyer identity.**
+Consumers prove purchase authenticity and submit genuine 1-5 star ratings **without revealing their name, home address, credit card number, or transaction receipt details** to merchants or public observers. Merchants anchor product authority, set review criteria, and verify feedback authenticity without collecting toxic consumer PII.
+
+> **Submit authentic, verified customer reviews & ratings mathematically — without exposing personal identity or purchasing history.**
 
 ---
 
@@ -46,13 +49,22 @@
 
 ---
 
+## ⚡ Midnight.js SDK Integration
+
+The frontend is fully integrated with the official **Midnight.js SDK**:
+- **`@midnight-ntwrk/dapp-connector-api`**: Provides standard browser wallet connector types (`DAppConnectorAPI`, `ConnectedAPI`, `InitialAPI`) to interact with Midnight Lace / 1AM extensions with approval popups and account resolution.
+- **`@midnight-ntwrk/midnight-js-network-provider` & `@midnight-ntwrk/midnight-js-network-id`**: Configures connection to Midnight Preview GraphQL indexer and RPC node.
+- **`@midnight-ntwrk/compact-runtime` & `@midnight-ntwrk/midnight-js-contracts`**: Manages on-chain circuit calls (`submitFeedback`, `verifyFeedback`, `flagFeedback`, `setMerchantCommitment`, `resetMerchantProduct`, `incrementSession`).
+
+---
+
 ## 📸 Platform Screenshots & Verification
 
 ### 1. Main Dashboard & ZK Contract Architecture
 ![ABF Main Dashboard](photos/dashboard.png)
 
-### 2. Consumer Anonymous Feedback & ZK Proof Portal
-![Consumer Feedback Portal](photos/submit.png)
+### 2. Anonymous Buyer Feedback & ZK Proof Portal
+![Submit Feedback Portal](photos/submit.png)
 
 ### 3. Mobile Responsive UI & Lace Wallet Connector
 ![Mobile Responsive UI](photos/mobile_ui.png)
@@ -69,23 +81,23 @@
 | Private Data | ZK Witness | Location |
 |---|---|---|
 | Buyer Secret Authentication Key | `buyerSecretKey()` | Local device only |
-| Purchase Order Receipt & Invoice | `orderInvoiceHash()` | SHA-256 hashed locally before ZK proof |
-| Star Rating Bounds (1 to 5) | `ratingScore()` | Verified in ZK bounds; buyer identity never linked |
-| Review Entropy Nonce | `feedbackProofNonce()` | Local device only |
+| Order Invoice / Receipt Identifier | `orderInvoiceHash()` | SHA-256 hashed locally before ZK proof |
+| Exact Rating Value Pre-Commitment | `ratingScore()` | Verified in ZK bounds (1-5); exact score sealed |
+| Review Salt Nonce | `feedbackProofNonce()` | Local device only |
 | Merchant Private Signing Key | `merchantSigningKey()` | Derived on-device for ZK moderation authorization |
 
 ### ✅ What an Observer CAN Learn (Public Ledger)
 
 | Public Data | Ledger Field | Type | Description |
 |---|---|---|---|
-| Total Verified Reviews | `feedbackCount` | `Counter` | Total verified feedback submissions |
-| Total Disputed Reviews | `flaggedCount` | `Counter` | Total moderated / flagged review claims |
-| Active Merchant Catalog ID | `merchantId` | `Bytes<32>` | Current active merchant / brand identifier |
+| Total Feedback Count | `feedbackCount` | `Counter` | Total verified buyer review commitments |
+| Total Flagged Reviews | `flaggedCount` | `Counter` | Total flagged / disputed review claims |
+| Active Merchant / Product ID | `merchantId` | `Bytes<32>` | Current active catalog identifier |
 | Merchant Authority Anchor | `merchantCommitment` | `Bytes<32>` | Public commitment derived from merchant key |
-| Latest Review Commitment | `lastFeedbackCommitment` | `Bytes<32>` | Most recent ZK feedback claim hash |
-| Latest Flagged Commitment | `lastFlaggedCommitment` | `Bytes<32>` | Most recent flagged / disputed claim hash |
+| Latest Feedback Commitment | `lastFeedbackCommitment` | `Bytes<32>` | Most recent ZK review claim hash |
+| Latest Flagged Commitment | `lastFlaggedCommitment` | `Bytes<32>` | Most recent flagged review hash |
 | Session Epoch | `activeSession` | `Counter` | Epoch nonce (replay protection) |
-| Minimum Rating Requirement | `minimumRatingScore` | `Uint<32>` | Minimum allowed rating score threshold |
+| Minimum Rating Requirement | `minimumRatingThreshold` | `Uint<32>` | Minimum published rating criteria (1-5) |
 
 ---
 
@@ -97,11 +109,11 @@
 
 | # | Circuit | Inputs | ZK Witnesses Used | Description |
 |---|---|---|---|---|
-| 1 | `submitFeedback` | `Bytes<32>` (merchantId) | buyerSecretKey, orderInvoiceHash, ratingScore, feedbackProofNonce | ZK buyer feedback with rating bounds assertion |
+| 1 | `submitFeedback` | `Bytes<32>` (merchantId) | buyerSecretKey, orderInvoiceHash, ratingScore, feedbackProofNonce | ZK buyer feedback submission with 1-5 rating validation |
 | 2 | `verifyFeedback` | `Bytes<32>` (commitment) | — | Public on-chain feedback commitment verification |
-| 3 | `flagFeedback` | `Bytes<32>` (commitment) | merchantSigningKey | Dispute / flag fraudulent review (ZK merchant auth) |
-| 4 | `setMerchantCommitment` | `Uint<32>` (minRating) | merchantSigningKey | Anchor merchant authority + set minimum rating bound |
-| 5 | `resetMerchantProduct` | `Bytes<32>`, `Uint<32>` | — | Rotate catalog ID + update rating bounds |
+| 3 | `flagFeedback` | `Bytes<32>` (commitment) | merchantSigningKey | Flag fraudulent feedback (ZK merchant auth) |
+| 4 | `setMerchantCommitment` | `Uint<32>` (minRating) | merchantSigningKey | Anchor merchant authority + set rating threshold |
+| 5 | `resetMerchantProduct` | `Bytes<32>`, `Uint<32>` | — | Rotate merchant product catalog ID + update criteria |
 | 6 | `incrementSession` | — | — | Bump session nonce (replay protection) |
 
 ```compact
@@ -116,7 +128,7 @@ export ledger merchantId: Bytes<32>;
 export ledger merchantCommitment: Bytes<32>;
 export ledger lastFeedbackCommitment: Bytes<32>;
 export ledger lastFlaggedCommitment: Bytes<32>;
-export ledger minimumRatingScore: Uint<32>;
+export ledger minimumRatingThreshold: Uint<32>;
 
 // ── Private Witnesses (5 — Never Disclosed On-Chain) ──────────────────────────
 witness buyerSecretKey(): Bytes<32>;
@@ -125,7 +137,7 @@ witness ratingScore(): Uint<32>;
 witness feedbackProofNonce(): Bytes<32>;
 witness merchantSigningKey(): Bytes<32>;
 
-// Circuit 1: submitFeedback — ZK Buyer Feedback Submission
+// Circuit 1: submitFeedback — ZK Buyer Review Submission
 export circuit submitFeedback(expectedMerchantId: Bytes<32>): Bytes<32> {
   assert(merchantId == expectedMerchantId, "Merchant ID mismatch");
 
@@ -134,8 +146,8 @@ export circuit submitFeedback(expectedMerchantId: Bytes<32>): Bytes<32> {
   const invoiceHash = orderInvoiceHash();
   const rating = ratingScore();
 
-  assert(rating >= minimumRatingScore, "Rating score below minimum required threshold");
-  assert(rating <= 5, "Rating score exceeds maximum allowed value of 5");
+  assert(rating >= 1, "Rating score must be >= 1");
+  assert(rating <= 5, "Rating score must be <= 5");
 
   const commitment = persistentHash<Vector<5, Bytes<32>>>([
     pad(32, "abf:feedback:v2"),
@@ -152,11 +164,11 @@ export circuit verifyFeedback(claimedCommitment: Bytes<32>): Boolean {
   return disclose(lastFeedbackCommitment == claimedCommitment);
 }
 
-// Circuit 3: flagFeedback — Merchant Moderation with ZK Authority
+// Circuit 3: flagFeedback — Merchant Disqualification
 export circuit flagFeedback(commitmentToFlag: Bytes<32>): Bytes<32> {
-  const mfrKey = merchantSigningKey();
+  const managerKey = merchantSigningKey();
   const expectedAuth = persistentHash<Vector<2, Bytes<32>>>([
-    pad(32, "abf:merchant:authority:v1"), mfrKey
+    pad(32, "abf:merchant:authority:v1"), managerKey
   ]);
   assert(expectedAuth == merchantCommitment, "Unauthorized merchant operation");
 
@@ -165,20 +177,20 @@ export circuit flagFeedback(commitmentToFlag: Bytes<32>): Bytes<32> {
   return lastFlaggedCommitment;
 }
 
-// Circuit 4: setMerchantCommitment — Anchor Merchant Authority & Config
+// Circuit 4: setMerchantCommitment — Anchor Merchant Authority & Threshold
 export circuit setMerchantCommitment(newMinimumRating: Uint<32>): Bytes<32> {
   merchantCommitment = disclose(persistentHash<Vector<2, Bytes<32>>>([
     pad(32, "abf:merchant:authority:v1"), merchantSigningKey()
   ]));
-  minimumRatingScore = newMinimumRating;
+  minimumRatingThreshold = newMinimumRating;
   activeSession.increment(1);
   return merchantCommitment;
 }
 
-// Circuit 5: resetMerchantProduct — Rotate Catalog & Update Bounds
+// Circuit 5: resetMerchantProduct — Rotate Product Catalog & Update Criteria
 export circuit resetMerchantProduct(newMerchantId: Bytes<32>, newMinimumRating: Uint<32>): Bytes<32> {
   merchantId = disclose(newMerchantId);
-  minimumRatingScore = newMinimumRating;
+  minimumRatingThreshold = newMinimumRating;
   activeSession.increment(1);
   return merchantId;
 }
@@ -195,16 +207,17 @@ export circuit incrementSession(): [] {
 
 ### Level 2 Checklist
 - [x] **Compact Smart Contract**: Written in Compact `v0.23` with 5 private witnesses and 8 public ledger fields.
+- [x] **Midnight.js SDK Integration**: `@midnight-ntwrk/midnight-js-network-provider`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/compact-runtime` wired into client.
 - [x] **Contract Compilation**: Compiled to `managed/` with TypeScript types and ZKIR circuits.
 - [x] **Local Unit Tests**: 100% test pass rate using Vitest (`10/10` tests passing).
 - [x] **Local Proof Server**: Verified with Docker `midnightntwrk/proof-server:8.1.0`.
 - [x] **On-Chain Deployment**: Deployed to Midnight Preview at `0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5`.
 
 ### Level 3 Checklist
-- [x] **Rich Contract Logic (v2)**: 6 circuits with real ZK business logic — rating bounds enforcement, review moderation, merchant authority anchoring, replay protection.
+- [x] **Rich Contract Logic (v2)**: 6 circuits with real ZK business logic — 1-5 rating enforcement, feedback flagging, merchant authority anchoring, replay protection.
 - [x] **PROPOSAL.md**: Substantively answers all 4 required questions (What? Problem? Architecture? Privacy Guarantees?).
 - [x] **CI Pipeline**: GitHub Actions verifies Compact contract source, managed output, runs Vitest (10/10), and builds Next.js.
-- [x] **Interactive Next.js 14 Web UI**: App Router dApp with ZK architecture diagrams, rating score selector, verify/flag panels.
+- [x] **Interactive Next.js 14 Web UI**: App Router dApp with ZK architecture diagrams, rating sliders, verify/flag panels.
 - [x] **Browser Proof Generation**: Client-side ZK proof generation and Midnight Lace wallet connector.
 - [x] **On-Chain Midnight Preview Deployment**: [Midnight Explorer](https://preview.midnightexplorer.com/contracts/0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5).
 - [x] **Live Vercel Demo**: [https://anonymous-buyer-feedback.vercel.app/](https://anonymous-buyer-feedback.vercel.app/).

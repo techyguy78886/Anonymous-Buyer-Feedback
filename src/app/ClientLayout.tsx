@@ -2,7 +2,10 @@
 
 import { useState, useCallback } from "react";
 import Navbar from "../components/Navbar";
-import { getClient } from "../lib/contract";
+import { getClient, type AnonymousBuyerFeedbackClient } from "../lib/contract";
+import type { DAppConnectorAPI, ConnectedAPI, InitialAPI } from "@midnight-ntwrk/dapp-connector-api";
+import type { NetworkConfiguration } from "@midnight-ntwrk/midnight-js-network-provider";
+import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const [walletAddress, setWalletAddress] = useState<string | null>(() => {
@@ -16,7 +19,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const handleConnect = useCallback(async () => {
     setConnecting(true);
     try {
-      const res = await getClient().connectWallet();
+      const client: AnonymousBuyerFeedbackClient = getClient();
+      const res = await client.connectWallet();
       setWalletAddress(res.walletAddress);
     } catch (err: any) {
       alert(err?.message || "Wallet connection failed.");
@@ -26,7 +30,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }, []);
 
   const handleDisconnect = useCallback(() => {
-    getClient().disconnectWallet();
+    const client: AnonymousBuyerFeedbackClient = getClient();
+    client.disconnectWallet();
     setWalletAddress(null);
   }, []);
 

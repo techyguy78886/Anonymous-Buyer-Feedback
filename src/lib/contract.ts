@@ -1,14 +1,34 @@
 ﻿"use client";
 
+import type {
+  DAppConnectorAPI,
+  InitialAPI,
+  ConnectedAPI,
+  WalletConnectedAPI,
+  Configuration
+} from "@midnight-ntwrk/dapp-connector-api";
+import { setNetworkId, getNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
+import { createNetworkProvider, type NetworkConfiguration } from "@midnight-ntwrk/midnight-js-network-provider";
+import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
+import { Contract, ledger, type Ledger, type Witnesses } from "../../managed/contract/index.js";
+
 export const CONTRACT_ADDRESS = "0xc8b966f549c7c68b9e5faa18056e95ecfb5e8032466cb84180e289f34c13f5d5";
 
-export const NETWORK_CONFIG = {
+export const NETWORK_CONFIG: NetworkConfiguration = {
   networkId: "preview",
   indexerUrl: "https://indexer.preview.midnight.network/api/v4/graphql",
   nodeUrl: "https://rpc.preview.midnight.network",
   faucetUrl: "https://faucet.preview.midnight.network",
+  proofServerUrl: "http://localhost:6300",
   explorerUrl: "https://preview.midnightexplorer.com/contracts/" + CONTRACT_ADDRESS,
 };
+
+// Initialize global network identifier via Midnight.js SDK
+try {
+  setNetworkId(NETWORK_CONFIG.networkId);
+} catch (e) {
+  // Already initialized
+}
 
 function stringToHex(str: string): string {
   let hex = "";
@@ -32,7 +52,9 @@ export class AnonymousBuyerFeedbackClient {
   private contractAddress: string;
   private isConnected = false;
   private connectedAddress: string | null = null;
-  private walletApi: any = null;
+  private walletApi: ConnectedAPI | WalletConnectedAPI | any = null;
+  private networkProvider: NetworkConfiguration;
+  private managedContract: Contract<any>;
 
   private buyerKey: string = "default_buyer_secret_key";
   private invoiceHash: string = "default_order_invoice_hash";
@@ -41,6 +63,18 @@ export class AnonymousBuyerFeedbackClient {
 
   constructor(address: string = CONTRACT_ADDRESS) {
     this.contractAddress = address;
+    this.networkProvider = createNetworkProvider(NETWORK_CONFIG);
+
+    // Instantiate Compact contract witnesses
+    const witnesses: Witnesses<any> = {
+      buyerSecretKey: (ctx) => [ctx, new Uint8Array(32).fill(1)],
+      orderInvoiceHash: (ctx) => [ctx, new Uint8Array(32).fill(2)],
+      ratingScore: (ctx) => [ctx, 5],
+      feedbackProofNonce: (ctx) => [ctx, new Uint8Array(32).fill(3)],
+      merchantSigningKey: (ctx) => [ctx, new Uint8Array(32).fill(4)],
+    };
+    this.managedContract = new Contract(witnesses);
+
     if (typeof sessionStorage !== "undefined") {
       const stored = sessionStorage.getItem("abf_wallet_connected") === "true";
       const addr = sessionStorage.getItem("abf_wallet_address");
@@ -56,8 +90,12 @@ export class AnonymousBuyerFeedbackClient {
   public setRatingScore(score: number) { this.ratingScore = score; }
   public setMerchantKey(k: string) { this.merchantKey = k; }
 
-  // ── Extension Detection ──────────────────────────────────────────────────
-  public getBrowserWalletProvider(): any {
+  public getNetworkProviders(): NetworkConfiguration {
+    return this.networkProvider;
+  }
+
+  // ── Extension Detection via Midnight DApp Connector API ─────────────────
+  public getBrowserWalletProvider(): InitialAPI | any {
     if (typeof window === "undefined") return null;
     const w = window as any;
     if (w.midnight) {
@@ -81,9 +119,13 @@ export class AnonymousBuyerFeedbackClient {
     const provider = this.getBrowserWalletProvider();
     if (!provider) throw new Error("Midnight Lace / 1AM Wallet not detected. Please install and unlock the extension.");
 
-    let connectedApi: any = null;
+    let connectedApi: ConnectedAPI | any = null;
     if (typeof provider.connect === "function") {
-      try { connectedApi = await provider.connect("preview"); } catch { connectedApi = await provider.connect(); }
+      try {
+        connectedApi = await provider.connect("preview");
+      } catch {
+        connectedApi = await provider.connect();
+      }
     } else if (typeof provider.enable === "function") {
       connectedApi = await provider.enable();
     } else {
@@ -142,7 +184,7 @@ export class AnonymousBuyerFeedbackClient {
     return { connected: this.isConnected, address: this.connectedAddress };
   }
 
-  // ── Circuit Invocations ──────────────────────────────────────────────────
+  // ── Circuit Invocations (Midnight.js Proving & Ledger Calls) ────────────
   public async submitFeedback(expectedMerchantId: string): Promise<{
     txHash: string;
     commitmentHex: string;

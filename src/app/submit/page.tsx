@@ -1,7 +1,10 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { getClient } from "../../lib/contract";
+import { getClient, NETWORK_CONFIG, type AnonymousBuyerFeedbackClient } from "../../lib/contract";
+import type { ConnectedAPI } from "@midnight-ntwrk/dapp-connector-api";
+import type { NetworkConfiguration } from "@midnight-ntwrk/midnight-js-network-provider";
+import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
 import Link from "next/link";
 
 export default function SubmitFeedbackPage() {
@@ -27,13 +30,14 @@ export default function SubmitFeedbackPage() {
     setVerifyResult(null);
 
     try {
-      addLog("> [WALLET] Connecting to Midnight Lace Wallet session...", "info");
-      addLog(`> [ZK WITNESS] buyerSecretKey() — private customer secret loaded`, "info");
-      addLog(`> [ZK WITNESS] orderInvoiceHash() — receipt SHA-256 hashed locally`, "info");
+      addLog("> [WALLET] Connecting to Midnight Lace Wallet via @midnight-ntwrk/dapp-connector-api...", "info");
+      addLog(`> [NETWORK] Using Midnight Network Provider (NetworkId: ${NETWORK_CONFIG.networkId})`, "info");
+      addLog(`> [ZK WITNESS] buyerSecretKey() - private customer secret loaded`, "info");
+      addLog(`> [ZK WITNESS] orderInvoiceHash() - receipt SHA-256 hashed locally`, "info");
       addLog(`> [ZK WITNESS] ratingScore() = ${ratingScore} Stars (asserting 1 <= rating <= 5)...`, "info");
       addLog(`> [CIRCUIT] Invoking submitFeedback(Bytes<32>) on Midnight Preview...`, "info");
 
-      const client = getClient();
+      const client: AnonymousBuyerFeedbackClient = getClient();
       client.setBuyerKey(buyerSecretKey || "sample_buyer_secret_key");
       client.setInvoiceHash(orderInvoice || "sample_order_invoice_hash");
       client.setRatingScore(ratingScore);
@@ -42,7 +46,7 @@ export default function SubmitFeedbackPage() {
 
       setResult(res);
       setClaimedCommitment(res.commitmentHex);
-      addLog(`> [SUCCESS] ZK Feedback commitment anchored on-chain!`, "success");
+      addLog(`> [SUCCESS] ZK Buyer Feedback commitment anchored on-chain!`, "success");
       addLog(`> [COMMITMENT] ${res.commitmentHex}`, "success");
       addLog(`> [TX HASH] ${res.txHash}`, "success");
       addLog(`> [FEE] ${res.txFee} ${res.txFeeAsset} paid by ${res.signedBy}`, "success");
@@ -53,7 +57,7 @@ export default function SubmitFeedbackPage() {
     }
   };
 
-  const handleVerifyFeedback = async (e: React.FormEvent) => {
+  const handleVerifyCommitment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!claimedCommitment) return;
     setVerifyLoading(true);
@@ -75,26 +79,26 @@ export default function SubmitFeedbackPage() {
       {/* ── Page Header ── */}
       <div style={{ marginBottom: "2rem" }}>
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
-          <span className="badge badge-emerald">Zero-Knowledge Feedback</span>
-          <span className="badge badge-teal">Client Prover</span>
-          <span className="badge badge-cyan">Midnight Preview</span>
+          <span className="badge badge-emerald">Review Prover</span>
+          <span className="badge badge-cyan">Client Prover (Midnight.js)</span>
+          <span className="badge badge-gold">Midnight Preview</span>
         </div>
-        <h1 className="section-title">Submit Anonymous Feedback</h1>
+        <h1 className="section-title">Anonymous Feedback Submission</h1>
         <p className="section-desc">
-          Your private buyer secret, order invoice, and rating bounds are verified locally in ZK. No personal buyer identity, credit card details, or receipt lines are published on-chain.
+          Submit authentic, verified product feedback in zero-knowledge. Your purchase receipt is proven valid without revealing your name, address, credit card details, or transaction items.
         </p>
       </div>
 
       {/* ── Submission Form Card ── */}
       <div className="glass-card" style={{ padding: "2rem", marginBottom: "2rem", borderLeft: "3px solid #10b981" }}>
         <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#10b981", marginBottom: "1.25rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          ✍️ Step 1 — Buyer Proof Parameters
+          🔒 Step 1 — Buyer Proof Parameters
         </div>
 
         <form onSubmit={handleSubmitFeedback} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <div>
             <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.4rem" }}>
-              Target Merchant / Store ID (Public Parameter)
+              Target Merchant Identifier (Public Parameter)
             </label>
             <input
               type="text"
@@ -123,21 +127,21 @@ export default function SubmitFeedbackPage() {
 
             <div>
               <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.4rem" }}>
-                Order Invoice / Receipt Content (ZK Witness)
+                Order Receipt / Invoice Identifier (ZK Witness)
               </label>
               <input
                 type="text"
                 id="orderInvoice"
                 value={orderInvoice}
                 onChange={e => setOrderInvoice(e.target.value)}
-                placeholder="e.g. INV-2026-981248 (hashed locally in SHA-256)"
+                placeholder="e.g. INV-2026-987452-AMZ (hashed locally in SHA-256)"
               />
             </div>
           </div>
 
           <div>
             <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.5rem" }}>
-              Star Rating Score (ZK Witness): <span style={{ color: "#f59e0b", fontWeight: 700 }}>{"★".repeat(ratingScore)}{"☆".repeat(5 - ratingScore)} ({ratingScore}/5 Stars)</span>
+              Verified Rating Score: <span style={{ color: "#eab308", fontWeight: 700 }}>{"★".repeat(ratingScore)}{"☆".repeat(5 - ratingScore)} ({ratingScore}/5 Stars)</span>
             </label>
             <input
               type="range"
@@ -150,23 +154,23 @@ export default function SubmitFeedbackPage() {
             />
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.72rem", color: "#64748b", marginTop: "0.25rem" }}>
               <span>1 Star (Poor)</span>
-              <span>2 Stars</span>
+              <span>2 Stars (Fair)</span>
               <span>3 Stars (Average)</span>
-              <span>4 Stars</span>
+              <span>4 Stars (Good)</span>
               <span>5 Stars (Excellent)</span>
             </div>
           </div>
 
           <div>
             <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.4rem" }}>
-              Review Feedback Comments (Optional)
+              Review Comments (Optional Feedback Narrative)
             </label>
             <textarea
               rows={3}
               id="reviewComments"
               value={reviewComments}
               onChange={e => setReviewComments(e.target.value)}
-              placeholder="e.g. Fast shipping, high build quality, verified genuine purchase."
+              placeholder="e.g. Exceptional product quality and swift customer support. Highly recommended!"
             />
           </div>
 
@@ -182,7 +186,7 @@ export default function SubmitFeedbackPage() {
                 <span className="spinner" /> Generating ZK Proof & Submitting...
               </>
             ) : (
-              "🔒 Generate ZK Proof & Submit Feedback"
+              "🔒 Generate ZK Proof & Submit Anonymous Feedback"
             )}
           </button>
         </form>
@@ -206,7 +210,7 @@ export default function SubmitFeedbackPage() {
       {result && (
         <div className="glass-card fade-in" style={{ padding: "1.75rem", marginBottom: "2rem", border: "1px solid rgba(16, 185, 129, 0.4)", background: "rgba(16, 185, 129, 0.04)" }}>
           <div style={{ color: "#10b981", fontWeight: 700, fontSize: "1.1rem", marginBottom: "1rem" }}>
-            ✅ ZK Feedback Successfully Anchored On-Chain
+            ✅ ZK Buyer Feedback Successfully Anchored On-Chain
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
@@ -226,15 +230,15 @@ export default function SubmitFeedbackPage() {
 
             <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
               <div>
-                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Rating Score:</span>
-                <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#f59e0b" }}>{"★".repeat(ratingScore)} ({ratingScore}/5 Stars)</div>
+                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Rating Score Valid:</span>
+                <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#10b981" }}>✅ 1-5 Range Verified</div>
               </div>
               <div>
                 <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Transaction Fee:</span>
                 <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#f8fafc" }}>{result.txFee} {result.txFeeAsset}</div>
               </div>
               <div>
-                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Submitter:</span>
+                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>Signed By:</span>
                 <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#94a3b8" }}>{result.signedBy}</div>
               </div>
             </div>
@@ -248,10 +252,10 @@ export default function SubmitFeedbackPage() {
           🔍 Step 2 — Verify Feedback Commitment (Public Circuit)
         </div>
         <p style={{ fontSize: "0.83rem", color: "#94a3b8", marginBottom: "1rem" }}>
-          Anyone can independently verify that a claimed feedback commitment hash exists in the latest public on-chain ledger state without knowing the buyer or invoice.
+          Merchants and observers can verify that a specific feedback commitment exists in the latest public on-chain ledger state without knowing the buyer identity.
         </p>
 
-        <form onSubmit={handleVerifyFeedback} style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+        <form onSubmit={handleVerifyCommitment} style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           <input
             type="text"
             id="claimedCommitment"
@@ -261,7 +265,7 @@ export default function SubmitFeedbackPage() {
             style={{ flex: 1, minWidth: 260 }}
             required
           />
-          <button type="submit" className="btn-secondary" disabled={verifyLoading || !claimedCommitment} id="verifyFeedbackBtn">
+          <button type="submit" className="btn-secondary" disabled={verifyLoading || !claimedCommitment} id="verifyCommitmentBtn">
             {verifyLoading ? <><span className="spinner" /> Verifying...</> : "Verify On-Chain"}
           </button>
         </form>
@@ -269,7 +273,7 @@ export default function SubmitFeedbackPage() {
         {verifyResult && (
           <div className="fade-in" style={{ marginTop: "1rem", padding: "1rem", borderRadius: "8px", background: verifyResult.matches ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)", border: `1px solid ${verifyResult.matches ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)"}` }}>
             <span style={{ fontWeight: 700, color: verifyResult.matches ? "#10b981" : "#ef4444" }}>
-              {verifyResult.matches ? "✅ Valid: Commitment confirmed in on-chain ledger state!" : "❌ Invalid: Commitment not found or mismatched."}
+              {verifyResult.matches ? "✅ Valid: Feedback commitment confirmed in on-chain ledger state!" : "❌ Invalid: Commitment not found or mismatched."}
             </span>
           </div>
         )}

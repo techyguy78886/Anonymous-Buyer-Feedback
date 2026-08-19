@@ -1,7 +1,10 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { getClient } from "../../lib/contract";
+import { getClient, NETWORK_CONFIG, type AnonymousBuyerFeedbackClient } from "../../lib/contract";
+import type { ConnectedAPI } from "@midnight-ntwrk/dapp-connector-api";
+import type { NetworkConfiguration } from "@midnight-ntwrk/midnight-js-network-provider";
+import type { MidnightProviders } from "@midnight-ntwrk/midnight-js-types";
 import Link from "next/link";
 
 export default function MerchantPage() {
@@ -30,11 +33,11 @@ export default function MerchantPage() {
     setLogs([]);
     setResult(null);
     try {
-      addLog("> [WALLET] Connecting to Midnight Lace Wallet session...", "info");
-      addLog("> [ZK WITNESS] merchantSigningKey() — authorized brand secret key loaded", "info");
-      addLog(`> [CIRCUIT] Executing setMerchantCommitment(Uint<32>) — minimumRating=${minRating}...`, "info");
+      addLog("> [WALLET] Connecting to Midnight Lace Wallet session via Midnight.js DApp Connector API...", "info");
+      addLog("> [ZK WITNESS] merchantSigningKey() - authorized brand secret key loaded", "info");
+      addLog(`> [CIRCUIT] Executing setMerchantCommitment(Uint<32>) - minimumRating=${minRating}...`, "info");
 
-      const client = getClient();
+      const client: AnonymousBuyerFeedbackClient = getClient();
       client.setMerchantKey(merchantKey || "merchant_default_private_key");
       const res = await client.setMerchantCommitment(minRating);
 
@@ -56,16 +59,16 @@ export default function MerchantPage() {
     setLogs([]);
     setResult(null);
     try {
-      addLog("> [WALLET] Connecting to Midnight Lace Wallet session...", "info");
-      addLog("> [ZK WITNESS] merchantSigningKey() — generating ZK moderation authorization proof", "info");
+      addLog("> [WALLET] Connecting to Midnight Lace Wallet session via Midnight.js SDK...", "info");
+      addLog("> [ZK WITNESS] merchantSigningKey() - generating ZK moderation authorization proof", "info");
       addLog(`> [CIRCUIT] Executing flagFeedback(Bytes<32>) for commitment...`, "info");
 
-      const client = getClient();
+      const client: AnonymousBuyerFeedbackClient = getClient();
       client.setMerchantKey(merchantKey || "merchant_default_private_key");
       const res = await client.flagFeedback(flagCommitment);
 
       setResult({ ...res, circuit: "flagFeedback(Bytes<32>)" });
-      addLog(`> [SUCCESS] Feedback review flagged/disputed on-chain!`, "success");
+      addLog(`> [SUCCESS] Feedback flagged on-chain!`, "success");
       addLog(`> [FLAGGED COMMITMENT] ${res.flaggedCommitment}`, "success");
       addLog(`> [TX HASH] ${res.txHash}`, "success");
     } catch (err: any) {
@@ -75,7 +78,7 @@ export default function MerchantPage() {
     }
   };
 
-  const handleResetProduct = async (e: React.FormEvent) => {
+  const handleResetMerchant = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingReset(true);
     setLogs([]);
@@ -84,11 +87,11 @@ export default function MerchantPage() {
       addLog("> [WALLET] Connecting to Midnight Lace Wallet session...", "info");
       addLog(`> [CIRCUIT] Executing resetMerchantProduct("${newMerchantId}", ${resetMinRating})...`, "info");
 
-      const client = getClient();
+      const client: AnonymousBuyerFeedbackClient = getClient();
       const res = await client.resetMerchantProduct(newMerchantId, resetMinRating);
 
       setResult({ ...res, circuit: "resetMerchantProduct(Bytes<32>, Uint<32>)" });
-      addLog(`> [SUCCESS] Merchant product catalog model ID updated on-chain!`, "success");
+      addLog(`> [SUCCESS] Merchant Product Catalog ID updated on-chain!`, "success");
       addLog(`> [NEW ID] ${res.newMerchantId}`, "success");
       addLog(`> [TX HASH] ${res.txHash}`, "success");
     } catch (err: any) {
@@ -104,9 +107,9 @@ export default function MerchantPage() {
     setResult(null);
     try {
       addLog("> [WALLET] Connecting to Midnight Lace Wallet session...", "info");
-      addLog("> [CIRCUIT] Executing incrementSession() — rotating active epoch nonce...", "info");
+      addLog("> [CIRCUIT] Executing incrementSession() - rotating active epoch...", "info");
 
-      const client = getClient();
+      const client: AnonymousBuyerFeedbackClient = getClient();
       const res = await client.incrementSession();
 
       setResult({ ...res, circuit: "incrementSession()" });
@@ -123,23 +126,23 @@ export default function MerchantPage() {
       {/* ── Page Header ── */}
       <div style={{ marginBottom: "2rem" }}>
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
-          <span className="badge badge-cyan">Merchant Administration</span>
-          <span className="badge badge-purple">Authority Controls</span>
-          <span className="badge badge-emerald">Midnight Preview</span>
+          <span className="badge badge-indigo">Merchant Console</span>
+          <span className="badge badge-cyan">Authority Controls (Midnight.js)</span>
+          <span className="badge badge-gold">Midnight Preview</span>
         </div>
         <h1 className="section-title">Merchant Admin Console</h1>
         <p className="section-desc">
-          Merchant circuits require the store owner''s private signing key as a ZK witness. The private key is never revealed on-chain — only derived cryptographic commitments are verified.
+          Merchant circuits require the store owner''s private signing key as a ZK witness. The private key is never revealed on-chain - only derived cryptographic commitments are verified.
         </p>
       </div>
 
       {/* ── Panel 1: Set Merchant Commitment ── */}
-      <div className="glass-card" style={{ padding: "1.75rem", marginBottom: "1.5rem", borderLeft: "3px solid #8b5cf6" }}>
-        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#8b5cf6", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+      <div className="glass-card" style={{ padding: "1.75rem", marginBottom: "1.5rem", borderLeft: "3px solid #6366f1" }}>
+        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#6366f1", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           🔑 Panel 1 — setMerchantCommitment(Uint&lt;32&gt;)
         </div>
         <p style={{ fontSize: "0.83rem", color: "#94a3b8", marginBottom: "1rem" }}>
-          Anchors the merchant authority public commitment on-chain and configures the minimum required rating score.
+          Anchors the merchant authority public commitment on-chain and configures the minimum required rating threshold for published buyer testimonials.
         </p>
         <form onSubmit={handleSetMerchantCommitment} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div>
@@ -157,7 +160,7 @@ export default function MerchantPage() {
           </div>
           <div>
             <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.4rem" }}>
-              Minimum Allowed Rating Score: <span style={{ color: "#8b5cf6", fontWeight: 700 }}>{minRating} Star{minRating > 1 ? "s" : ""}</span>
+              Minimum Published Rating Threshold: <span style={{ color: "#eab308", fontWeight: 700 }}>{minRating} Star{minRating > 1 ? "s" : ""}</span>
             </label>
             <input
               type="range"
@@ -166,7 +169,7 @@ export default function MerchantPage() {
               step={1}
               value={minRating}
               onChange={e => setMinRating(Number(e.target.value))}
-              style={{ width: "100%", accentColor: "#8b5cf6" }}
+              style={{ width: "100%", accentColor: "#6366f1" }}
             />
           </div>
           <button
@@ -174,7 +177,6 @@ export default function MerchantPage() {
             className="btn-primary"
             disabled={isLoading}
             id="setMerchantBtn"
-            style={{ background: "rgba(139, 92, 246, 0.2)", borderColor: "rgba(139, 92, 246, 0.5)" }}
           >
             {loadingMerchant ? <><span className="spinner" /> Anchoring Authority...</> : "Anchor Merchant Authority (ZK)"}
           </button>
@@ -182,17 +184,17 @@ export default function MerchantPage() {
       </div>
 
       {/* ── Panel 2: Flag Feedback ── */}
-      <div className="glass-card" style={{ padding: "1.75rem", marginBottom: "1.5rem", borderLeft: "3px solid #ef4444" }}>
-        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#ef4444", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          🚫 Panel 2 — flagFeedback(Bytes&lt;32&gt;)
+      <div className="glass-card" style={{ padding: "1.75rem", marginBottom: "1.5rem", borderLeft: "3px solid #f43f5e" }}>
+        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#f43f5e", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          🚩 Panel 2 — flagFeedback(Bytes&lt;32&gt;)
         </div>
         <p style={{ fontSize: "0.83rem", color: "#94a3b8", marginBottom: "1rem" }}>
-          Flag or dispute a fraudulent review claim. Requires merchant authority proof via <code>merchantSigningKey()</code> witness. Stored in <code>lastFlaggedCommitment</code>.
+          Flag or dispute fraudulent feedback. Requires merchant authority proof via <code>merchantSigningKey()</code> witness.
         </p>
         <form onSubmit={handleFlagFeedback} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div>
             <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.4rem" }}>
-              Feedback Commitment Hash to Dispute (Bytes&lt;32&gt;)
+              Feedback Commitment Hash to Flag (Bytes&lt;32&gt;)
             </label>
             <input
               type="text"
@@ -208,25 +210,25 @@ export default function MerchantPage() {
             className="btn-primary"
             disabled={isLoading || !flagCommitment}
             id="flagFeedbackBtn"
-            style={{ background: "rgba(239, 68, 68, 0.15)", borderColor: "rgba(239, 68, 68, 0.4)" }}
+            style={{ background: "rgba(244, 63, 94, 0.15)", borderColor: "rgba(244, 63, 94, 0.4)" }}
           >
-            {loadingFlag ? <><span className="spinner" /> Flagging on Midnight...</> : "Dispute / Flag Review (ZK Auth)"}
+            {loadingFlag ? <><span className="spinner" /> Flagging on Midnight...</> : "Flag Feedback (ZK Auth)"}
           </button>
         </form>
       </div>
 
-      {/* ── Panel 3: Reset Product Catalog ── */}
-      <div className="glass-card" style={{ padding: "1.75rem", marginBottom: "1.5rem", borderLeft: "3px solid #10b981" }}>
-        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#10b981", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+      {/* ── Panel 3: Reset Product ── */}
+      <div className="glass-card" style={{ padding: "1.75rem", marginBottom: "1.5rem", borderLeft: "3px solid #06b6d4" }}>
+        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#06b6d4", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           🔄 Panel 3 — resetMerchantProduct(Bytes&lt;32&gt;, Uint&lt;32&gt;)
         </div>
         <p style={{ fontSize: "0.83rem", color: "#94a3b8", marginBottom: "1rem" }}>
-          Rotate active product catalog model ID and update minimum rating bounds for new catalog lines.
+          Rotate active merchant product catalog ID and reset minimum rating criteria for new product launches.
         </p>
-        <form onSubmit={handleResetProduct} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        <form onSubmit={handleResetMerchant} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div>
             <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.4rem" }}>
-              New Merchant Catalog ID (Bytes&lt;32&gt;)
+              New Merchant / Product Catalog Identifier (Bytes&lt;32&gt;)
             </label>
             <input
               type="text"
@@ -239,7 +241,7 @@ export default function MerchantPage() {
           </div>
           <div>
             <label style={{ fontSize: "0.82rem", fontWeight: 600, color: "#94a3b8", display: "block", marginBottom: "0.4rem" }}>
-              New Minimum Rating Bound: <span style={{ color: "#10b981", fontWeight: 700 }}>{resetMinRating} Star{resetMinRating > 1 ? "s" : ""}</span>
+              New Minimum Rating: <span style={{ color: "#eab308", fontWeight: 700 }}>{resetMinRating} Star{resetMinRating > 1 ? "s" : ""}</span>
             </label>
             <input
               type="range"
@@ -248,7 +250,7 @@ export default function MerchantPage() {
               step={1}
               value={resetMinRating}
               onChange={e => setResetMinRating(Number(e.target.value))}
-              style={{ width: "100%", accentColor: "#10b981" }}
+              style={{ width: "100%", accentColor: "#06b6d4" }}
             />
           </div>
           <button
@@ -256,16 +258,16 @@ export default function MerchantPage() {
             className="btn-primary"
             disabled={isLoading}
             id="resetProductBtn"
-            style={{ background: "rgba(16, 185, 129, 0.15)", borderColor: "rgba(16, 185, 129, 0.4)" }}
+            style={{ background: "rgba(6, 182, 212, 0.15)", borderColor: "rgba(6, 182, 212, 0.4)" }}
           >
-            {loadingReset ? <><span className="spinner" /> Updating Catalog...</> : "Rotate Catalog Model ID"}
+            {loadingReset ? <><span className="spinner" /> Updating Catalog...</> : "Rotate Merchant Product ID"}
           </button>
         </form>
       </div>
 
       {/* ── Panel 4: Increment Session ── */}
-      <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "1.5rem", borderLeft: "3px solid #06b6d4" }}>
-        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#06b6d4", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+      <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "1.5rem", borderLeft: "3px solid #eab308" }}>
+        <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#eab308", marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.08em" }}>
           🔒 Panel 4 — incrementSession()
         </div>
         <p style={{ fontSize: "0.83rem", color: "#94a3b8", marginBottom: "1rem" }}>

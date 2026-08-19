@@ -1,4 +1,4 @@
-﻿name: CI/CD Pipeline — Anonymous Buyer Feedback
+name: CI/CD Pipeline — Anonymous Buyer Feedback
 
 on:
   push:
